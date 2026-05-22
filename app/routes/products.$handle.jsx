@@ -10,6 +10,8 @@ import {getVariantUrl} from '~/lib/variants';
 import {ProductPrice} from '~/components/ProductPrice';
 import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
+import WishlistButton from '~/lib/swym/components/wishlist/WishlistButton';
+import { loadwishlistData } from '~/lib/swym/loaders/swymloaders';
 
 /**
  * @type {MetaFunction<typeof loader>}
@@ -28,7 +30,9 @@ export async function loader(args) {
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
-  return defer({...deferredData, ...criticalData});
+  const swymLoaderData = await loadwishlistData(args);
+
+  return defer({...deferredData, ...criticalData, ...swymLoaderData});
 }
 
 /**
@@ -171,6 +175,7 @@ export default function Product() {
         </Suspense>
         <br />
         <br />
+        <WishlistButton product={product} buttonType={'icon'} addToMultiList={true}></WishlistButton>
         <p>
           <strong>Description</strong>
         </p>

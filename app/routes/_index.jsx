@@ -2,6 +2,8 @@ import {defer} from '@shopify/remix-oxygen';
 import {Await, useLoaderData, Link} from '@remix-run/react';
 import {Suspense} from 'react';
 import {Image, Money} from '@shopify/hydrogen';
+import WishlistButton from '~/lib/swym/components/wishlist/WishlistButton';
+import { loadwishlistData } from '~/lib/swym/loaders/swymloaders';
 
 /**
  * @type {MetaFunction}
@@ -20,7 +22,9 @@ export async function loader(args) {
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
-  return defer({...deferredData, ...criticalData});
+  const swymLoaderData = await loadwishlistData(args);
+
+  return defer({...deferredData, ...criticalData, ...swymLoaderData});
 }
 
 /**
@@ -119,6 +123,7 @@ function RecommendedProducts({products}) {
                         sizes="(min-width: 45em) 20vw, 50vw"
                       />
                       <h4>{product.title}</h4>
+                      <WishlistButton product={product} buttonType={'icon'} />
                       <small>
                         <Money data={product.priceRange.minVariantPrice} />
                       </small>
@@ -175,6 +180,11 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
         altText
         width
         height
+      }
+    }
+    variants(first: 1){
+      nodes{
+        id
       }
     }
   }

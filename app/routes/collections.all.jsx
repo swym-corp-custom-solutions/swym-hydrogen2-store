@@ -3,6 +3,8 @@ import {useLoaderData, Link} from '@remix-run/react';
 import {getPaginationVariables, Image, Money} from '@shopify/hydrogen';
 import {useVariantUrl} from '~/lib/variants';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
+import WishlistButton from '~/lib/swym/components/wishlist/WishlistButton';
+import { loadwishlistData } from '~/lib/swym/loaders/swymloaders';
 
 /**
  * @type {MetaFunction<typeof loader>}
@@ -21,7 +23,9 @@ export async function loader(args) {
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
-  return defer({...deferredData, ...criticalData});
+  const swymLoaderData = await loadwishlistData(args);
+
+  return defer({...deferredData, ...criticalData, ...swymLoaderData});
 }
 
 /**
@@ -103,6 +107,7 @@ function ProductItem({product, loading}) {
         />
       )}
       <h4>{product.title}</h4>
+      <WishlistButton product={product} buttonType={'icon'} addToMultiList={true}></WishlistButton>
       <small>
         <Money data={product.priceRange.minVariantPrice} />
       </small>
@@ -136,6 +141,7 @@ const PRODUCT_ITEM_FRAGMENT = `#graphql
     }
     variants(first: 1) {
       nodes {
+        id
         selectedOptions {
           name
           value
